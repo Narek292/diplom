@@ -59,15 +59,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'devicemanage.wsgi.application'
 
-if os.path.exists("/data"):
-    DB_DIR = Path("/data")
-else:
-    DB_DIR = BASE_DIR
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': DB_DIR / 'db.sqlite3',  # Путь к папке Amvera
+        'NAME': BASE_DIR / 'db.sqlite3',  # Путь к папке Amvera
     }
 }
 
