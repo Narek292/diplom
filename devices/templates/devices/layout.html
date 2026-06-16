@@ -1,0 +1,68 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{% block title %} {% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'main/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="sidebar">
+            <h4>Навигация</h4> <hr>
+            {% if request.session.role|default:"Гость" != 'Гость' %}
+            <a href="{% url 'devices_home' %}"> <i class="bi bi-speedometer2"></i> Дашборд</a>
+            <a href="{% url 'devices' %}"> <i class="bi bi-hdd-network"></i> Устройства</a>
+            <a href="{% url 'incidents'%}"> <i class="bi bi-tools"></i> Инциденты</a>
+            {% endif %}
+            <a href="{% url 'wiki' %}"><i class="bi bi-journal-text"></i> База знаний</a>
+            {% if request.session.role|default:"Гость" == 'Администратор' %}
+            <a href="{% url 'admin:index' %}"><i class="bi bi-shield-lock"></i> Администрирование</a>
+            {% endif %}
+
+        </div>
+
+           <div class="topbar">
+               <h5>{% block page_title %} {% endblock %}</h5>
+               <div class="d-flex align-items-center gap-2">
+                   {% if request.session.user_id %}
+                 <i class="bi bi-person-circle fs-3 text-secondary"></i>
+                   <div>
+                    <div class="fw-semibold">
+                            {{ request.session.username }}</div>
+                   <div class="text-muted small">
+                        {{ request.session.role }}
+                    </div>
+                </div>
+                       <a href="{% url 'logout' %}">
+                           <button class="btn btn-sm btn-outline-danger ms-2"> Выйти </button>
+                       </a>
+                   {% else %}
+                        <a href="{% url 'login' %}">
+                           <button class="btn btn-sm btn-outline-primary ms-2"> Войти </button>
+                       </a>
+                   {% endif %}
+               </div>
+
+           </div>
+
+    </header>
+<div class="main content">
+
+    <div class="container-fluid px-4">
+
+        {% block content %}
+
+        {% endblock %}
+
+    </div>
+
+</div>
+    <script src="{% static 'main/js/bootstrap.bundle.min.js' %}" ></script>
+</body>
+</html>

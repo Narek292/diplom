@@ -1,0 +1,269 @@
+{% extends 'devices/layout.html' %}
+
+{% block title %}
+Заявки
+{% endblock %}
+
+{% block page_title %}
+Управление инцидентами
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="mb-1">
+            <i class="bi bi-ticket-detailed"></i>
+            Заявки и инциденты
+        </h3>
+    </div>
+</div>
+
+<!-- Статистика -->
+
+<div class="row mb-4">
+
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h2 class="mb-1">{{ tickets|length }}</h2>
+                <span class="text-muted">Всего заявок</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h2 class="text-primary mb-1">
+                    {{ tickets_new|default:"0" }}
+                </h2>
+                <span class="text-muted">Новые</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h2 class="text-warning mb-1">
+                    {{ tickets_active|default:"0" }}
+                </h2>
+                <span class="text-muted">В работе</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h2 class="text-success mb-1">
+                    {{ tickets_solved|default:"0" }}
+                </h2>
+                <span class="text-muted">Решены</span>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Фильтры -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-center">
+            <div class="col-md-3">
+                <input class="form-control"
+                       placeholder="Поиск заявки..."
+                       name="search"
+                       value="{{ request.GET.search }}">
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" name="status">
+                    <option value="">Статус</option>
+
+                    {% for s in statuses %}
+                    <option value="{{ s.id }}"
+                        {% if request.GET.status == s.id|stringformat:"s" %}
+                        selected
+                        {% endif %} >
+                        {{ s.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" name="priority">
+                    <option value="">Приоритет</option>
+                    {% for p in priorities %}
+                    <option value="{{ p.id }}"
+                        {% if request.GET.priority == p.id|stringformat:"s" %}
+                        selected
+                        {% endif %} >
+                        {{ p.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit"
+                        class="btn btn-primary">
+                    <i class="bi bi-funnel"></i>
+                    Применить
+                </button>
+                <a href="{% url 'incidents' %}"
+                   class="btn btn-outline-secondary">
+                    Сброс
+                </a>
+            </div>
+
+            <div class="col-md-2 d-flex justify-content-end gap-2">
+
+                {% if request.session.role == 'Инженер' or request.session.role == 'Администратор' or request.session.role == 'Оператор' %}
+                <a href="{% url 'create_ticket' %}"
+                   class="btn btn-success">
+                    <i class="bi bi-plus-lg"></i> Добавить
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Таблица заявок -->
+
+<div class="card shadow-sm border-0">
+
+    <div class="card-body p-0">
+
+        <table class="table table-hover align-middle mb-0">
+
+            <thead class="table-light">
+
+                <tr>
+                    <th>ID</th>
+                    <th>Тема</th>
+                    <th>Устройство</th>
+                    <th>Приоритет</th>
+                    <th>Статус</th>
+                    <th>Ответственный</th>
+                    <th>Дата создания</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for ticket in tickets %}
+
+                <tr onclick="window.location='{% url 'detail_ticket' ticket.id %}'"
+                    style="cursor:pointer;">
+
+                    <td>
+                        <strong>#{{ ticket.id }}</strong>
+                    </td>
+
+                    <td>
+
+                        <i class="bi bi-ticket-perforated me-2"></i>
+
+                        {{ ticket.title }}
+
+                    </td>
+
+                    <td>
+
+                        {% if ticket.device %}
+                            {{ ticket.device }}
+                        {% else %}
+                            <span class="text-muted">Не указано</span>
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {% if ticket.priority.name == 'Высокий' %}
+                            <span class="badge bg-danger">
+                                {{ ticket.priority.name }}
+                            </span>
+
+                        {% elif ticket.priority.name == 'Средний' %}
+                            <span class="badge bg-warning text-dark">
+                                {{ ticket.priority.name }}
+                            </span>
+
+                        {% else %}
+                            <span class="badge bg-secondary">
+                                {{ ticket.priority.name }}
+                            </span>
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {% if ticket.status.name == 'Новая' %}
+                            <span class="badge bg-primary">
+                                {{ ticket.status.name }}
+                            </span>
+
+                        {% elif ticket.status.name == 'В работе' %}
+                            <span class="badge bg-warning text-dark">
+                                {{ ticket.status.name }}
+                            </span>
+
+                        {% elif ticket.status.name == 'Решена' %}
+                            <span class="badge bg-success">
+                                {{ ticket.status.name }}
+                            </span>
+
+                        {% else %}
+                            <span class="badge bg-dark">
+                                {{ ticket.status.name }}
+                            </span>
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {% if ticket.assigned_to %}
+                            <i class="bi bi-person-workspace me-1"></i>
+                            {{ ticket.assigned_to.username }}
+                        {% else %}
+                            <span class="text-muted">Не назначен</span>
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {{ ticket.created_at|date:"d.m.Y" }}
+
+                        <br>
+
+                        <small class="text-muted">
+                            {{ ticket.created_at|date:"H:i" }}
+                        </small>
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="7" class="text-center py-4 text-muted">
+                        Заявки не найдены
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

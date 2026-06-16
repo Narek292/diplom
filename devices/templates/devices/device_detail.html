@@ -1,0 +1,157 @@
+{% extends 'devices/layout.html' %}
+
+{% block title %}Просмотр устройств {% endblock %}
+
+{% block page_title %} Просмотр устройств {% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between">
+        <h5> {{ device.type.name }} - {{ device.id }} </h5>
+        <div>
+            {% if request.session.role == 'Инженер' or request.session.role == 'Администратор' %}
+            <a href="{% url 'device_delete' device.id %}" class="btn btn-danger"> Удалить </a>
+            <a href="{% url 'device_update' device.id %}" class="btn btn-warning"> Редактировать </a>
+            {% endif %}
+            <a href="{% url 'devices' %}" class="btn btn-secondary"> Назад </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <tr>
+                <th>ID</th>
+                <td>{{ device.id }}</td>
+            </tr>
+            <tr>
+                <th>IP</th>
+                <td>{{ device.ip_address }}</td>
+            </tr>
+            <tr>
+                <th>Серийний номер</th>
+                <td>{{ device.serial_number }}</td>
+            </tr>
+            <tr>
+                <th>Инвентарный номер</th>
+                <td>{{ device.inventory_number }}</td>
+            </tr>
+            <tr>
+                <th>Тип</th>
+                <td> {{ device.type.name }} </td>
+            </tr>
+            <tr>
+                <th>Статус</th>
+                <td>
+                    {% if device.status.name == 'В работе' %}
+                            <span class="badge bg-success">
+                                {{ device.status.name }}
+                            </span>
+                        {% elif device.status.name == 'Неисправен' %}
+                            <span class="badge bg-danger">
+                                {{ device.status.name }}
+                            </span>
+                        {% elif device.status.name == 'В резерве' %}
+                            <span class="badge bg-warning text-dark">
+                                {{ device.status.name }}
+                            </span>
+                        {% else %}
+                            <span class="badge bg-secondary">
+                                {{ device.status.name }}
+                            </span>
+                        {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Местоположение</th>
+                <td> {{ device.location.building }}-{{ device.location.room }} </td>
+            </tr>
+            <tr>
+                <th>Заметки</th>
+                <td> {{ device.notes }} </td>
+            </tr>
+            <tr>
+                <th>Дата создания</th>
+                <td> {{ device.created_at }} </td>
+            </tr>
+            <tr>
+                <th>Последние изменения</th>
+                <td> {{ device.updated_at }} </td>
+            </tr>
+
+        </table>
+    </div>
+    </div>
+<div class="card mt-4">
+    <div class="card-header">
+        <h5>История изменений</h5>
+    </div>
+    <div class="card-body">
+
+        <table class="table table-hover">
+
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Пользователь</th>
+                    <th>Действие</th>
+                    <th>Описание</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for log in logs %}
+
+                <tr>
+
+                    <td>
+                        {{ log.created_at }}
+                    </td>
+
+                    <td>
+                        {{ log.user.username }}
+                    </td>
+
+                    <td>
+
+                        {% if log.action == 'create' %}
+                            <span class="badge bg-success">
+                                Создание
+                            </span>
+
+                        {% elif log.action == 'update' %}
+                            <span class="badge bg-warning text-dark">
+                                Изменение
+                            </span>
+
+                        {% elif log.action == 'delete' %}
+                            <span class="badge bg-danger">
+                                Удаление
+                            </span>
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+                        {{ log.description }}
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="4">
+                        История изменений отсутствует.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+
+{% endblock %}

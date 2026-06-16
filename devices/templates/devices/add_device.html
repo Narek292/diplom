@@ -1,0 +1,27 @@
+{% extends 'devices/layout.html' %}
+
+{% block title %}Добавление/Редактирование устройства {% endblock %}
+
+{% block page_title %} Добавление/Редактирование устройства {% endblock %}
+
+{% block content %}
+
+<div style="width: 100%;display: flex; justify-content: center;">
+<form method="post" class="form-add">
+    {% csrf_token %}
+    <label class="form-label">Тип устройства</label>
+    {{ form.type }}<br>
+    {{ form.ip_address }}<br>
+    {{ form.inventory_number }}<br>
+    {{ form.serial_number }}<br>
+    <label class="form-label">Статус устройства</label>
+    {{ form.status }}<br>
+    <label class="form-label">Местоположение</label>
+    {{ form.location }}<br>
+    {{ form.notes }}<br>
+    <span>{{ error }}</span>
+    <button class="btn btn-primary" type="submit">Добавить устройство</button>
+    <a href="{% url 'devices' %}" class="btn btn-secondary"> Назад </a>
+</form>
+</div>
+{% endblock %}

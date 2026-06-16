@@ -1,0 +1,233 @@
+{% extends 'devices/layout.html' %}
+
+{% block title %}
+База знаний
+{% endblock %}
+
+{% block page_title %}
+База знаний
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="mb-1">
+            <i class="bi bi-journal-text"></i>
+            База знаний
+        </h3>
+        <small class="text-muted">
+            Справочные материалы и инструкции по обслуживанию оборудования
+        </small>
+    </div>
+</div>
+
+<!-- Статистика -->
+
+<div class="row mb-4">
+
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h2 class="mb-1">{{ articles|length }}</h2>
+                <span class="text-muted">Всего статей</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h2 class="text-primary mb-1">
+                    {{ category|length }}
+                </h2>
+                <span class="text-muted">Категорий</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h2 class="text-success mb-1">
+                    {{ tags_count|default:"0" }}
+                </h2>
+                <span class="text-muted">Тегов</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Фильтры -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-body">
+
+        <form method="get" class="row g-3 align-items-center">
+
+            <div class="col-md-5">
+
+                <input
+                    class="form-control"
+                    placeholder="Поиск по статьям..."
+                    name="search"
+                    value="{{ request.GET.search }}">
+
+            </div>
+
+            <div class="col-md-3">
+
+                <select class="form-select" name="category">
+
+                    <option value="">
+                        Все категории
+                    </option>
+
+                    {% for cat in category %}
+
+                    <option value="{{ cat.id }}"
+                        {% if request.GET.category == cat.id|stringformat:"s" %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ cat.name }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <div class="col-md-2">
+                <button
+                    type="submit"
+                    class="btn btn-primary">
+
+                    <i class="bi bi-funnel"></i>
+                    Применить
+                </button>
+                <a href="{% url 'wiki' %}"
+                   class="btn btn-outline-secondary">
+                    Сброс
+                </a>
+            </div>
+
+            <div class="col-md-2 d-flex justify-content-end gap-2">
+                {% if request.session.role|default:"Гость" != 'Гость' %}
+                <a href="{% url 'add_article' %}"
+                   class="btn btn-success">
+                    <i class="bi bi-plus-lg"></i> Добавить
+                </a>
+                {% endif %}
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- Таблица статей -->
+
+<div class="card shadow-sm border-0">
+
+    <div class="card-body p-0">
+
+        <table class="table table-hover align-middle mb-0">
+
+            <thead class="table-light">
+
+                <tr>
+                    <th>Название статьи</th>
+                    <th>Категория</th>
+                    <th>Теги</th>
+                    <th>Дата изменения</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for article in articles %}
+
+                <tr
+                    onclick="window.location='{% url 'detail_article' article.id %}'"
+                    style="cursor:pointer;">
+
+                    <td>
+
+                        <div class="fw-semibold">
+                            <i class="bi bi-file-earmark-text me-2"></i>
+                            {{ article.title }}
+                        </div>
+
+                    </td>
+
+                    <td>
+
+                        <span class="badge bg-primary">
+                            {{ article.category.name }}
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        {% for tag in article.tags.all %}
+
+                            <span class="badge bg-secondary me-1">
+                                #{{ tag.name }}
+                            </span>
+
+                        {% empty %}
+
+                            <span class="text-muted">
+                                Нет тегов
+                            </span>
+
+                        {% endfor %}
+
+                    </td>
+
+                    <td>
+
+                        {{ article.updated_at|date:"d.m.Y" }}
+
+                        <br>
+
+                        <small class="text-muted">
+                            {{ article.updated_at|date:"H:i" }}
+                        </small>
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="4"
+                        class="text-center py-4 text-muted">
+
+                        Статьи не найдены
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

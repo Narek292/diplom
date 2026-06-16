@@ -1,0 +1,42 @@
+{% extends 'devices/layout.html' %}
+{% block title %}
+История статьи
+{% endblock %}
+{% block page_title %}
+История изменений
+{% endblock %}
+{% block content %}
+<h4>
+    Статья:
+    {{ article.title }}
+</h4>
+<div class="card mt-3">
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Пользователь</th>
+                    <th>Комментарий</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for version in history %}
+                <tr>
+                    <td>{{ version.created_at }}</td>
+                    <td>{{ version.edited_by.username }}</td>
+                    <td>{{ version.comment }}</td>
+                    <td><a href="{% url 'article_version' version.id %}"
+                           class="btn btn-sm btn-primary">Просмотр старой версии</a></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">История изменений отсутствует.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

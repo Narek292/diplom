@@ -1,0 +1,44 @@
+{% extends 'devices/layout.html' %}
+
+{% block title %}
+Удаление устройства
+{% endblock %}
+{% block page_title %}
+Удаление устройства
+{% endblock %}
+{% block content %}
+<div class="container mt-4">
+
+    <h2>Удаление устройства</h2>
+
+    <div class="alert alert-danger">
+        Вы действительно хотите удалить устройство?
+    </div>
+
+    <table class="table table-bordered">
+        <tr>
+            <th>ID</th>
+            <td>{{ device.id }}</td>
+        </tr>
+        <tr>
+            <th>Название</th>
+            <td>{{ device.type.name }}</td>
+        </tr>
+        <tr>
+            <th>IP адрес</th>
+            <td>{{ deivce.ip_address }}</td>
+        </tr>
+        <tr>
+            <th>Местоположение</th>
+            <td>{{ device.location }}</td>
+        </tr>
+    </table>
+
+
+    <form method="post" class="w-100">
+        {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Удалить</button>
+            <a href="{% url 'devices' %}" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+{% endblock %}

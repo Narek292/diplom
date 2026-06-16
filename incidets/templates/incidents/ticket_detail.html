@@ -1,0 +1,169 @@
+{% extends 'devices/layout.html' %}
+{% block title %}Просмотр заявки {% endblock %}
+{% block page_title %} Просмотр заявки {% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between">
+        <h5> {{ ticket.title }} </h5>
+        <div>
+            {% if request.session.role == 'Администратор' or request.session.role == 'Инженер' %}
+            <a href="{% url 'delete_ticket' ticket.id %}" class="btn btn-danger"> Удалить </a>
+            <a href="{% url 'update_ticket' ticket.id %}" class="btn btn-warning"> Редактировать </a>
+            {% endif %}
+            <a href="{% url 'incidents' %}" class="btn btn-secondary"> Назад </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <tr>
+                <th>ID</th>
+                <td>{{ ticket.id }}</td>
+            </tr>
+            <tr>
+                <th>Устройство</th>
+                <td>{{ ticket.device.type }} (ID:{{ ticket.device.id }}) - {{ ticket.device.location }}</td>
+            </tr>
+            <tr>
+                <th>Связанная статья</th>
+                {% if ticket.article %}
+              <td><a href="{% url 'detail_article' ticket.article.id %}">{{ ticket.article.title }}</a></td>
+                {% else %}
+                <td><span class="text-muted">
+                Связанная статья отсутствует
+                </span></td>
+                {% endif %}
+            </tr>
+            <tr>
+                <th>Статус</th>
+                <td>
+                    {% if ticket.status.name == 'Новая' %}
+                            <span class="badge bg-primary">
+                                {{ ticket.status.name }}
+                            </span>
+
+                        {% elif ticket.status.name == 'В работе' %}
+                            <span class="badge bg-warning text-dark">
+                                {{ ticket.status.name }}
+                            </span>
+
+                        {% elif ticket.status.name == 'Решена' %}
+                            <span class="badge bg-success">
+                                {{ ticket.status.name }}
+                            </span>
+
+                        {% else %}
+                            <span class="badge bg-dark">
+                                {{ ticket.status.name }}
+                            </span>
+                        {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Приоритет</th>
+                <td>
+                    {% if ticket.priority.name == 'Высокий' %}
+                            <span class="badge bg-danger">
+                                {{ ticket.priority.name }}
+                            </span>
+
+                        {% elif ticket.priority.name == 'Средний' %}
+                            <span class="badge bg-warning text-dark">
+                                {{ ticket.priority.name }}
+                            </span>
+
+                        {% else %}
+                            <span class="badge bg-secondary">
+                                {{ ticket.priority.name }}
+                            </span>
+                        {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Дата создания</th>
+                <td> {{ ticket.created_at }} </td>
+            </tr>
+            <tr>
+                <th>Описание</th>
+                <td> {{ ticket.description|safe }} </td>
+            </tr>
+            <tr>
+                <th>Отвественный</th>
+                {% if ticket.assigned_to %}
+                <td> {{ ticket.assigned_to }} </td>
+                {% else %}
+                <td> <span class="text-muted">
+                    Ответственный не назначен
+                </span> </td>
+                {% endif %}
+            </tr>
+        </table>
+    </div>
+    </div>
+<div class="card mt-4">
+
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="bi bi-clock-history"></i>
+            История изменений
+        </h5>
+    </div>
+
+    <div class="card-body">
+
+        {% if history %}
+
+            {% for item in history %}
+
+            <div class="border-start border-3 ps-3 mb-4">
+
+                <div class="d-flex justify-content-between">
+
+                    <div>
+                        Пользователь: <strong>{{ item.changed_by.username }}</strong>
+                    </div>
+
+                    <small class="text-muted">
+                        {{ item.changed_at|date:"d.m.Y H:i" }}
+                    </small>
+
+                </div>
+
+                <div class="mt-2">
+                    <div style="display: inline-block">
+                        Поле:
+                    <span class="badge bg-secondary">
+                        {{ item.field_name }}
+                    </span>
+                    </div>
+                    <div class="mt-2">
+                        Значение:
+                        <span class="text-danger">
+                            {{ item.old_value|default:"Не указано" }}
+                        </span>
+
+                        <i class="bi bi-arrow-right mx-2"></i>
+
+                        <span class="text-success">
+                            {{ item.new_value|default:"Не указано" }}
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="text-muted">
+                Изменений по заявке не зарегистрировано.
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+{% endblock %}

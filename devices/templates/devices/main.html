@@ -1,0 +1,427 @@
+{% extends "devices/layout.html" %}
+
+{% block title %}
+Дашборд
+{% endblock %}
+
+{% block page_title %}
+Дашборд
+{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <h3 class="mb-1">
+        <i class="bi bi-speedometer2"></i>
+        Панель управления
+    </h3>
+
+    <small class="text-muted">
+        Мониторинг устройств, заявок и базы знаний
+    </small>
+</div>
+
+<!-- Карточки статистики -->
+
+<div class="row g-3 mb-4">
+
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+
+                <div class="text-muted mb-2">
+                    Устройства
+                </div>
+
+                <h2>
+                    {{ devices_count }}
+                </h2>
+
+                <i class="bi bi-router fs-2 text-primary"></i>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+
+                <div class="text-muted mb-2">
+                    Заявки
+                </div>
+
+                <h2>
+                    {{ tickets_count }}
+                </h2>
+
+                <i class="bi bi-ticket-detailed fs-2 text-danger"></i>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+
+                <div class="text-muted mb-2">
+                    Статьи базы знаний
+                </div>
+
+                <h2>
+                    {{ articles_count }}
+                </h2>
+
+                <i class="bi bi-journal-text fs-2 text-success"></i>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+
+                <div class="text-muted mb-2">
+                    Неисправные устройства
+                </div>
+
+                <h2 class="text-danger">
+                    {{ devices_broken }}
+                </h2>
+
+                <i class="bi bi-exclamation-triangle fs-2 text-danger"></i>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Быстрые действия -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header">
+        Быстрые действия
+    </div>
+
+    <div class="card-body">
+
+        <div class="row g-3">
+
+            {% if request.session.role == 'Инженер' or request.session.role == 'Администратор' %}
+
+            <div class="col-md-3">
+
+                <a href="{% url 'add_device' %}"
+                   class="text-decoration-none">
+
+                    <div class="card border h-100 text-center">
+
+                        <div class="card-body">
+
+                            <i class="bi bi-router fs-1"></i>
+
+                            <h6 class="mt-3">
+                                Добавить устройство
+                            </h6>
+
+                        </div>
+
+                    </div>
+
+                </a>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <a href="{% url 'add_article' %}"
+                   class="text-decoration-none">
+
+                    <div class="card border h-100 text-center">
+
+                        <div class="card-body">
+
+                            <i class="bi bi-journal-plus fs-1"></i>
+
+                            <h6 class="mt-3">
+                                Добавить статью
+                            </h6>
+
+                        </div>
+
+                    </div>
+
+                </a>
+
+            </div>
+
+            {% endif %}
+
+            {% if request.session.role == 'Инженер' or request.session.role == 'Администратор' or request.session.role == 'Оператор' %}
+
+            <div class="col-md-3">
+
+                <a href="{% url 'create_ticket' %}"
+                   class="text-decoration-none">
+
+                    <div class="card border h-100 text-center">
+
+                        <div class="card-body">
+
+                            <i class="bi bi-ticket-detailed fs-1"></i>
+
+                            <h6 class="mt-3">
+                                Создать заявку
+                            </h6>
+
+                        </div>
+
+                    </div>
+
+                </a>
+
+            </div>
+
+            {% endif %}
+
+            <div class="col-md-3">
+
+                <a href="{% url 'device_logs' %}"
+                   class="text-decoration-none">
+
+                    <div class="card border h-100 text-center">
+
+                        <div class="card-body">
+
+                            <i class="bi bi-clock-history fs-1"></i>
+
+                            <h6 class="mt-3">
+                                История изменений устройств
+                            </h6>
+
+                        </div>
+
+                    </div>
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Графики -->
+
+<div class="row g-4 mb-4">
+
+    <div class="col-md-6">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-header">
+                Состояние устройств
+            </div>
+
+            <div class="card-body">
+
+                <canvas id="devicesChart"></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-6">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-header">
+                Статусы заявок
+            </div>
+
+            <div class="card-body">
+
+                <canvas id="ticketsChart"></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Последние заявки -->
+
+<div class="card shadow-sm border-0">
+
+    <div class="card-header">
+        Последние заявки
+    </div>
+
+    <div class="card-body p-0">
+
+        <table class="table table-hover align-middle mb-0">
+
+            <thead class="table-light">
+
+                <tr>
+
+                    <th>ID</th>
+                    <th>Тема</th>
+                    <th>Статус</th>
+                    <th>Дата</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for ticket in recent_tickets %}
+
+                <tr onclick="window.location='{% url 'detail_ticket' ticket.id %}'"
+                    style="cursor:pointer;">
+
+                    <td>
+                        #{{ ticket.id }}
+                    </td>
+
+                    <td>
+                        {{ ticket.title }}
+                    </td>
+
+                    <td>
+
+                        {% if ticket.status.name == 'Новая' %}
+
+                            <span class="badge bg-primary">
+                                {{ ticket.status.name }}
+                            </span>
+
+                        {% elif ticket.status.name == 'В работе' %}
+
+                            <span class="badge bg-warning text-dark">
+                                {{ ticket.status.name }}
+                            </span>
+
+                        {% elif ticket.status.name == 'Решена' %}
+
+                            <span class="badge bg-success">
+                                {{ ticket.status.name }}
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge bg-secondary">
+                                {{ ticket.status.name }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {{ ticket.created_at|date:"d.m.Y" }}
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="4"
+                        class="text-center py-4 text-muted">
+
+                        Нет заявок
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<script>
+
+const devicesCtx = document.getElementById('devicesChart');
+
+new Chart(devicesCtx, {
+
+    type: 'doughnut',
+
+    data: {
+
+        labels: [
+            'В работе',
+            'В резерве',
+            'Неисправен'
+        ],
+
+        datasets: [{
+
+            data: [
+
+                {{ devices_online }},
+                {{ devices_offline }},
+                {{ devices_broken }}
+
+            ]
+
+        }]
+
+    }
+
+});
+
+const ticketsCtx = document.getElementById('ticketsChart');
+
+new Chart(ticketsCtx, {
+
+    type: 'pie',
+
+    data: {
+
+        labels: [
+            'Новые',
+            'В работе',
+            'Решённые'
+        ],
+
+        datasets: [{
+
+            data: [
+
+                {{ tickets_new }},
+                {{ tickets_work }},
+                {{ tickets_done }}
+
+            ]
+
+        }]
+
+    }
+
+});
+
+</script>
+
+{% endblock %}

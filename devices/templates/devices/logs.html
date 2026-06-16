@@ -1,0 +1,75 @@
+{% extends 'devices/layout.html' %}
+
+{% block title %}
+История изменений
+{% endblock %}
+
+{% block page_title %}
+История изменений
+{% endblock %}
+
+{% block content %}
+
+<div class="card">
+
+    <div class="card-body">
+
+        <table class="table table-hover">
+
+            <thead>
+
+                <tr>
+                    <th>Дата</th>
+                    <th>Устройство</th>
+                    <th>Пользователь</th>
+                    <th>Действие</th>
+                    <th>Описание</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for log in logs %}
+
+                <tr>
+
+                    <td>
+                        {{ log.created_at }}
+                    </td>
+
+                    <td>
+                        {{ log.device }}
+                    </td>
+
+                    <td>
+                        {{ log.user.username }}
+                    </td>
+
+                    <td>
+                        {{ log.action }}
+                    </td>
+
+                    <td>
+                        {{ log.description }}
+                    </td>
+
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">
+                        История изменений отсутствует.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'devices/layout.html' %}
+{% block title %}
+Создание заявки
+{% endblock %}
+{% block page_title %}
+Новая заявка
+{% endblock %}
+{% block content %}
+<div style="width: 100%;display: flex; justify-content: center;">
+<form method="post" class="form-add">
+    {% csrf_token %}
+    {{ form.media }}
+    {{ form.title }}<br>
+    <label class="form-label">Описание</label>
+    {{ form.description }}<br>
+    <label class="form-label">Устройство</label>
+    {{ form.device }}<br>
+    <label class="form-label">Связанная статья (решение)</label>
+    {{ form.article }}<br>
+    <label class="form-label">Статус</label>
+    {{ form.status }}<br>
+    <label class="form-label">Приоритет</label>
+    {{ form.priority }}<br>
+    <span>{{ error }}</span>
+    <button class="btn btn-primary" type="submit">Сохранить</button>
+    <a href="{% url 'incidents' %}" class="btn btn-secondary"> Назад </a>
+</form>
+</div>
+{% endblock %}
