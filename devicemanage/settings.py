@@ -59,11 +59,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'devicemanage.wsgi.application'
 
+if os.path.exists("/data"):
+    DB_DIR = Path("/data")
+else:
+    DB_DIR = BASE_DIR
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'data' / 'db.sqlite3',  # Путь к папке Amvera
+        'NAME': DB_DIR / 'db.sqlite3',  # Путь к папке Amvera
     }
 }
 
@@ -92,7 +96,7 @@ USE_I18N = True
 USE_TZ = True
 
 
-STATIC_URL = 'static/'
+STATIC_URL = 'devices/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_DIRS = [
